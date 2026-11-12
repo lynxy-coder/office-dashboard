@@ -1,5 +1,5 @@
 {
-  "name": "building-dashboard",
+  "name": "office-dashboard",
   "version": "1.0.0",
   "description": "Дашборд инженерной системы здания: мониторинг вентиляции, чиллеров и насосов в реальном времени",
   "type": "module",
