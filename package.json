@@ -1,0 +1,17 @@
+{
+  "name": "building-dashboard",
+  "version": "1.0.0",
+  "description": "Дашборд инженерной системы здания: мониторинг вентиляции, чиллеров и насосов в реальном времени",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node server/server.js",
+    "test": "node --test tests/"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

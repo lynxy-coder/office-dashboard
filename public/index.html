@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Инженерные системы — Офис Компании Х</title>
+    <meta
+      name="description"
+      content="Мониторинг вентиляции, чиллеров и насосов здания в реальном времени"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <h1>Инженерные системы «Офис Компании Х»</h1>
+      <div class="topbar-controls">
+        <span id="connection" class="connection" data-state="connecting" role="status">Подключение…</span>
+        <button id="sound-toggle" class="btn" type="button" aria-pressed="false">Звук: выкл</button>
+        <button id="theme-toggle" class="btn" type="button" aria-pressed="false">Светлая тема</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="summary" aria-label="Сводка по состоянию оборудования">
+        <div class="summary-item" data-status="ok"><b id="count-ok">0</b><span>Норма</span></div>
+        <div class="summary-item" data-status="warning"><b id="count-warning">0</b><span>Предупреждения</span></div>
+        <div class="summary-item" data-status="alarm"><b id="count-alarm">0</b><span>Аварии</span></div>
+        <div class="summary-item" data-status="offline"><b id="count-offline">0</b><span>Нет связи</span></div>
+      </section>
+
+      <section class="filters" aria-label="Фильтры оборудования">
+        <label>Этаж
+          <select id="filter-floor"><option value="all">Все</option></select>
+        </label>
+        <label>Тип
+          <select id="filter-type"><option value="all">Все</option></select>
+        </label>
+        <label>Статус
+          <select id="filter-status">
+            <option value="all">Все</option>
+            <option value="ok">Норма</option>
+            <option value="warning">Предупреждение</option>
+            <option value="alarm">Авария</option>
+            <option value="offline">Нет связи</option>
+          </select>
+        </label>
+        <label class="filters-search">Поиск
+          <input id="filter-search" type="search" placeholder="Название оборудования" autocomplete="off" />
+        </label>
+      </section>
+
+      <div class="columns">
+        <section class="equipment" aria-label="Оборудование">
+          <div id="cards" class="cards"></div>
+          <p id="cards-empty" class="empty" hidden>Нет оборудования, подходящего под фильтры</p>
+        </section>
+
+        <aside class="side">
+          <section class="panel" aria-label="Графики">
+            <div class="panel-header">
+              <h2>Графики: <span id="selected-name">—</span></h2>
+              <button id="fail-sensor" class="btn btn-small" type="button"
+                title="Включает и выключает имитацию отказа датчика температуры">
+                Имитировать отказ датчика температуры
+              </button>
+            </div>
+            <label id="control-mode-box" class="control-mode" hidden>
+              Регулирование
+              <select id="control-mode">
+                <option value="supply">По приточному воздуху</option>
+                <option value="exhaust">По вытяжному воздуху</option>
+              </select>
+            </label>
+            <p id="charts-warning" class="empty" hidden>
+              Не удалось загрузить Chart.js: графики недоступны, остальные функции работают.
+            </p>
+            <div class="chart-box"><canvas id="chart-temperature" aria-label="График температуры" role="img"></canvas></div>
+            <div class="chart-box"><canvas id="chart-pressure" aria-label="График давления" role="img"></canvas></div>
+          </section>
+
+          <section class="panel" aria-label="Аварии">
+            <div class="panel-header">
+              <h2>Аварии <span id="alarm-count" class="count-pill">0</span></h2>
+              <div class="tabs" role="tablist">
+                <button class="tab" role="tab" data-alarm-view="active" aria-selected="true" type="button">Активные</button>
+                <button class="tab" role="tab" data-alarm-view="archive" aria-selected="false" type="button">Архив</button>
+              </div>
+            </div>
+            <ul id="alarm-list" class="alarm-list"></ul>
+          </section>
+        </aside>
+      </div>
+    </main>
+
+    <script type="module" src="js/main.js"></script>
+  </body>
+</html>
