@@ -7,6 +7,7 @@ export function startDataSource({ onTelemetry, onStatus }) {
   let wasConnected = false;
 
   function startDemo() {
+    if (demo) return;
     demo = createEmulator(EQUIPMENT);
     const tick = () => onTelemetry(demo.tick(), Date.now());
     setInterval(tick, 1000);
@@ -20,7 +21,16 @@ export function startDataSource({ onTelemetry, onStatus }) {
     const proto = location.protocol === 'https:' ? 'wss' : 'ws';
     socket = new WebSocket(`${proto}://${location.host}/ws`);
 
+    // на статическом хостинге ответа может не быть долго, ждём только 3 секунды
+    const giveUp = setTimeout(() => {
+      if (!wasConnected) {
+        socket.close();
+        startDemo();
+      }
+    }, 3000);
+
     socket.onopen = () => {
+      clearTimeout(giveUp);
       wasConnected = true;
       onStatus('online');
     };
