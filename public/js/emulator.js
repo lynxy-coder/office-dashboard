@@ -54,7 +54,8 @@ export function createEmulator(equipment) {
 
     setMode(id, mode) {
       const u = units.get(id);
-      if (u && u.eq.modes && u.eq.modes[mode] !== undefined) u.mode = mode;
+      // Object.hasOwn: иначе режим "constructor" или "toString" из прототипа объекта прошёл бы проверку
+      if (u && u.eq.modes && Object.hasOwn(u.eq.modes, mode)) u.mode = mode;
     },
   };
 }

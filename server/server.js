@@ -20,7 +20,14 @@ const TYPES = {
 const emulator = createEmulator(EQUIPMENT);
 
 const server = http.createServer(async (req, res) => {
-  const url = new URL(req.url, 'http://localhost');
+  // кривой адрес вроде "//[" выбрасывает исключение, и без проверки сервер бы упал
+  let url;
+  try {
+    url = new URL(req.url, 'http://localhost');
+  } catch {
+    res.writeHead(400);
+    return res.end('Bad request');
+  }
 
   if (url.pathname === '/api/equipment') {
     res.writeHead(200, { 'Content-Type': TYPES['.json'] });
@@ -43,9 +50,13 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-const wss = new WebSocketServer({ server, path: '/ws' });
+// maxPayload: команды маленькие, больше килобайта не принимаем
+const wss = new WebSocketServer({ server, path: '/ws', maxPayload: 1024 });
 
 wss.on('connection', (socket) => {
+  // ошибка протокола у одного клиента (битый кадр) не должна ронять весь сервер
+  socket.on('error', () => socket.terminate());
+
   socket.on('message', (raw) => {
     try {
       const msg = JSON.parse(raw);

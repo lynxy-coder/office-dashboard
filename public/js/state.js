@@ -33,6 +33,7 @@ export function applyTelemetry(items, ts) {
 
   for (const item of items) {
     const eq = state.equipment.find((e) => e.id === item.id);
+    if (!eq) continue; // данные по неизвестному оборудованию пропускаем
     state.telemetry.set(item.id, item);
 
     const history = state.history.get(item.id);
@@ -53,6 +54,9 @@ export function applyTelemetry(items, ts) {
         old.level = 'alarm';
         old.acked = false;
         raised.push(old);
+      } else if (old.level === 'alarm' && c.level === 'warning') {
+        // значение вернулось из аварийной зоны в зону предупреждения
+        old.level = 'warning';
       }
     }
 

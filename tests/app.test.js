@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { EQUIPMENT } from '../public/js/equipment.js';
 import { conditions, worst } from '../public/js/alarms.js';
 import { filterEquipment } from '../public/js/filters.js';
+import { createEmulator } from '../public/js/emulator.js';
 import { state, setEquipment, applyTelemetry, activeAlarms } from '../public/js/state.js';
 
 const ahu = EQUIPMENT.find((eq) => eq.id === 'ahu-1'); // уставка 22 °C, 300 Па
@@ -43,4 +44,29 @@ test('авария появляется и снимается', () => {
 
   applyTelemetry([{ id: 'ahu-1', temp: 22, press: 300 }], 2000);
   assert.equal(activeAlarms().length, 0);
+});
+
+test('уровень тревоги понижается, когда значение вернулось в зону предупреждения', () => {
+  setEquipment(EQUIPMENT);
+  state.connection = 'online';
+
+  applyTelemetry([{ id: 'ahu-1', temp: 27, press: 300 }], 1000);
+  assert.equal(activeAlarms()[0].level, 'alarm');
+
+  applyTelemetry([{ id: 'ahu-1', temp: 24.5, press: 300 }], 2000);
+  assert.equal(activeAlarms()[0].level, 'warning');
+});
+
+test('данные по неизвестному оборудованию не роняют обработку', () => {
+  setEquipment(EQUIPMENT);
+  assert.doesNotThrow(() => applyTelemetry([{ id: 'нет-такого', temp: 1, press: 1 }], 1000));
+});
+
+test('режим регулирования: названия из прототипа объекта не принимаются', () => {
+  const emulator = createEmulator(EQUIPMENT);
+  emulator.setMode('ahu-1', 'constructor');
+  emulator.setMode('ahu-1', 'exhaust');
+  const item = emulator.tick().find((i) => i.id === 'ahu-1');
+  assert.equal(item.mode, 'exhaust');
+  assert.equal(typeof item.tempSp, 'number');
 });

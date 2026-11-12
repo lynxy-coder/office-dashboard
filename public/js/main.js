@@ -23,7 +23,19 @@ function refresh() {
 function setTheme(theme) {
   document.documentElement.dataset.theme = theme;
   $('theme-toggle').textContent = theme === 'light' ? 'Тёмная тема' : 'Светлая тема';
-  localStorage.setItem('theme', theme);
+  try {
+    localStorage.setItem('theme', theme);
+  } catch {
+    // в приватном режиме localStorage может быть недоступен: тема просто не запомнится
+  }
+}
+
+function savedTheme() {
+  try {
+    return localStorage.getItem('theme');
+  } catch {
+    return null;
+  }
 }
 
 function select(id) {
@@ -34,7 +46,7 @@ function select(id) {
 async function start() {
   setEquipment(await loadEquipment());
   fillFilters();
-  setTheme(localStorage.getItem('theme') || 'dark');
+  setTheme(savedTheme() || 'dark');
 
   if (!initCharts($('chart-temperature'), $('chart-pressure'))) $('charts-warning').hidden = false;
 

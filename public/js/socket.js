@@ -36,8 +36,12 @@ export function startDataSource({ onTelemetry, onStatus }) {
     };
 
     socket.onmessage = (e) => {
-      const msg = JSON.parse(e.data);
-      if (msg.type === 'telemetry') onTelemetry(msg.items, msg.ts);
+      try {
+        const msg = JSON.parse(e.data);
+        if (msg.type === 'telemetry') onTelemetry(msg.items, msg.ts);
+      } catch (err) {
+        console.error('Не удалось разобрать сообщение сервера', err);
+      }
     };
 
     socket.onclose = () => {

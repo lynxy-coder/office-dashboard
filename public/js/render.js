@@ -17,6 +17,8 @@ const cards = new Map();
 let lastAlarmsHtml = '';
 
 const $ = (id) => document.getElementById(id);
+// названия и тексты вставляются через innerHTML, поэтому спецсимволы экранируем
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => '&#' + c.charCodeAt(0) + ';');
 const time = (ts) => new Date(ts).toLocaleTimeString('ru-RU');
 
 export function fillFilters() {
@@ -46,7 +48,7 @@ function createCard(eq) {
   card.tabIndex = 0;
   card.innerHTML = `
     <header class="card-header">
-      <h3 class="card-title">${eq.name}</h3>
+      <h3 class="card-title">${esc(eq.name)}</h3>
       <span class="badge" data-role="badge"></span>
     </header>
     <p class="card-meta">${TYPES[eq.type].label} · ${floorLabel(eq.floor)}</p>
@@ -75,8 +77,9 @@ function updateCard(card, eq) {
   card.classList.toggle('selected', eq.id === state.selectedId);
   part('badge').textContent = STATUS[status];
 
-  part('mode').hidden = !t?.mode;
-  if (t?.mode) part('mode').textContent = `Регулирование: ${MODES[t.mode].toLowerCase()}`;
+  const knownMode = Boolean(t?.mode) && Object.hasOwn(MODES, t.mode);
+  part('mode').hidden = !knownMode;
+  if (knownMode) part('mode').textContent = `Регулирование: ${MODES[t.mode].toLowerCase()}`;
 
   part('tempSp').textContent = `уставка ${t?.tempSp ?? eq.temp} °C`;
   part('temp').textContent = t?.temp != null ? `${t.temp.toFixed(1)} °C` : '—';
@@ -116,8 +119,8 @@ function renderAlarms() {
           return `
         <li class="alarm" data-severity="${a.level}" data-unacked="${open && !a.acked}">
           <div class="alarm-main">
-            <strong>${a.name}</strong>
-            <span>${a.text}</span>
+            <strong>${esc(a.name)}</strong>
+            <span>${esc(a.text)}</span>
             <small>${time(a.raisedAt)}${note}</small>
           </div>
           ${open && !a.acked ? `<button class="btn btn-small" data-ack="${a.id}">Квитировать</button>` : ''}
